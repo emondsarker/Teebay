@@ -60,3 +60,33 @@
     cursor: pointer;
     filter: brightness(110%);
 }
+
+.steps{
+    display: flex;
+    justify-content: center;
+}
+.steps p{
+    background-color: lightgrey;
+    margin: 10px 30px;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    
+}
+
+
+/* Add product styles */
+
+.AddProductContainer{
+    font-family: Arial, Helvetica, sans-serif;
+    border: solid;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: lightgrey;
+    padding: 20px;
+}
+.AddProductContainer h1{
+    text-align: center;
+}

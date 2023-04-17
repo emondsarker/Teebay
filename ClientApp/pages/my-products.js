@@ -1,10 +1,15 @@
 import React from 'react'
 import ResponsiveAppBar from '../components/navbar'
 import { InferGetServerSidePropsType } from 'next'
-import ProductCard from '../components/ProductCard'
+import MyProductCard from '../components/MyProductCard'
 import { Box } from '@mui/system'
+import { Button } from '@mui/material'
+import styles from '../styles/teebay.module.css'
+import { useRouter } from 'next/router'
 
 export default function MyProducts() {
+  
+  // test data 
   const test = {
     title: "Cricket kit",
     categories: "Sporting Goods, Outdoor",
@@ -15,19 +20,30 @@ export default function MyProducts() {
     date: "21st August 2020",
     views: "156"
   }
+  const router = useRouter()
+  const handleAddProduct=()=>{
+    
+    router.push('/add-product')
+    console.log("pressed")
+  }
+
   return (
 
     <div>
       <ResponsiveAppBar/>
-      <Box  
-      sx={{
-            marginTop: '5%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}>
-        <ProductCard data={test}/>
-          </Box>
+      <div className={styles.body}>
+        
+        <MyProductCard data={test}/>
+
+        <div className={styles.buttonContainer}>
+          
+          <button className={styles.rightButton} onClick={()=>{handleAddProduct()}}>
+            Add Product
+          </button>
+        </div>  
+        
+
+      </div>
      
     </div>
    
