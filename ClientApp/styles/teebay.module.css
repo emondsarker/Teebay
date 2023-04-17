@@ -1,0 +1,62 @@
+.body{
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 50px;
+    
+}
+.transactionTabs{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    
+    width: 100%;
+  }
+
+.transactionTabs button{
+    padding: 10px;
+    width: 25%;
+    background-color: white;
+    font-weight: bold;
+    border: none;
+    border-bottom: solid;
+    border-color: white;
+    border-bottom-width: 5px;
+    
+    
+}
+.transactionTabs button:hover{
+    cursor: pointer;
+    filter: brightness(95%);
+}
+
+.buttonContainer{
+    width: 100%;
+    display: flex;
+   
+}
+.leftButton{
+    background-color: purple;
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    margin: 10px 0px;
+    
+}
+.rightButton{
+    background-color: purple;
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    margin: 10px 0px;
+    margin-left: auto;
+}
+
+.rightButton:hover, .leftButton:hover{
+    cursor: pointer;
+    filter: brightness(110%);
+}
