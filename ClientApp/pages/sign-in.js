@@ -13,18 +13,51 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
+import { useState } from 'react';
+import { gql, useQuery } from '@apollo/client';
 
+const LOGIN_USER = gql`
+  query LoginUser($email: String!, $password: String!) {
+    loginUser(email: $email, password: $password) {
+      id
+      firstName
+      lastName
+      email
+    }
+  }
+`;
 const theme = createTheme();
 
 export default function SignIn() {
-  
-    const handleSubmit = (event) => {
+
+
+  const { loading, error, data, refetch } = useQuery(LOGIN_USER, {
+    variables: { email: '', password: '' },
+    skip: true,
+  });
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
       email: data.get('email'),
       password: data.get('password'),
     });
+
+    let formData = {
+      email: data.get('email'),
+      password: data.get('password'),
+    }
+
+    try {
+      const { data } = await refetch({ email: formData.email, password: formData.password });
+      console.log('User logged in successfully:', data.loginUser);
+      // Save the user data or token in local storage or state management for further authentication
+    } catch (error) {
+      console.error(error);
+      alert('Error logging in');
+    }
+
   };
 
   return (
@@ -39,7 +72,7 @@ export default function SignIn() {
             alignItems: 'center',
           }}
         >
-          
+
           <Typography component="h1" variant="h4">
             Teebay // Sign in
           </Typography>
@@ -77,7 +110,7 @@ export default function SignIn() {
               Sign In
             </Button>
             <Grid container>
-              <Grid item xs={12} sx={{textAlign:'center'}}>
+              <Grid item xs={12} sx={{ textAlign: 'center' }}>
                 <Link href="/sign-up" variant="body2" >
                   "Don't have an account? Sign Up"
                 </Link>
