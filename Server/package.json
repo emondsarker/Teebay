@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart": "nodemon script.js"
+    "devStart": "nodemon script.js",
+    "server": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,12 +15,12 @@
     "apollo-server-express": "^3.12.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
     "graphql": "^16.6.0",
     "pg": "^8.10.0",
     "prisma": "^4.12.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
-  },
-  "type": "module"
+  }
 }

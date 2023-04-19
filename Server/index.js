@@ -129,3 +129,20 @@ app.use(
 const port = process.env.PORT || 4000;
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
+
+
+
+async function main() {
+  // const user = await prisma.user.deleteMany();
+  // console.log(user)
+  console.log(await prisma.user.findMany())
+
+}
+
+main()
+  .catch(e => {
+    console.error(e.message)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

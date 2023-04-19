@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -14,17 +14,80 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
 
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
+
+const SIGN_UP_USER = gql`
+  mutation SignUpUser(
+    $firstName: String!
+    $lastName: String!
+    $email: String!
+    $address: String!
+    $phone: String!
+    $password: String!
+    $activation: Boolean!
+  ) {
+    signUpUser(
+      firstName: $firstName
+      lastName: $lastName
+      email: $email
+      address: $address
+      phone: $phone
+      password: $password
+      activation: $activation
+    ) {
+      id
+      firstName
+      lastName
+      email
+    }
+  }
+`;
 
 const theme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
+
+  const [signUpUser, { data }] = useMutation(SIGN_UP_USER);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    address: '',
+    phone: '',
+    password: '',
+  });
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
+      firstName: data.get('firstName'),
+      lastName: data.get('lastName'),
+      address: data.get('address'),
       email: data.get('email'),
+      phone: data.get('phone'),
       password: data.get('password'),
+      confirmPassword: data.get('confirmPassword')
     });
+
+    let formData = {
+      firstName: data.get('firstName'),
+      lastName: data.get('lastName'),
+      email: data.get('email'),
+      address: data.get('address'),
+      phone: data.get('phone'),
+      password: data.get('password'),
+      activation: false,
+    }
+
+    try {
+      await signUpUser({ variables: { ...formData, activation: true } });
+      alert('User created successfully');
+    } catch (error) {
+      console.error(error);
+      alert('Error creating user');
+    }
   };
 
   return (
@@ -39,7 +102,7 @@ export default function SignUp() {
             alignItems: 'center',
           }}
         >
-          
+
           <Typography component="h1" variant="h4">
             Teebay // Sign up
           </Typography>
@@ -119,7 +182,7 @@ export default function SignUp() {
                   autoComplete="new-password"
                 />
               </Grid>
-            
+
             </Grid>
             <Button
               type="submit"
@@ -130,7 +193,7 @@ export default function SignUp() {
               Sign Up
             </Button>
             <Grid container justifyContent="flex-end">
-              <Grid item xs={12} sx={{textAlign:'center'}}>
+              <Grid item xs={12} sx={{ textAlign: 'center' }}>
                 <Link href="/sign-in" variant="body2">
                   Already have an account? Sign in
                 </Link>
@@ -138,7 +201,7 @@ export default function SignUp() {
             </Grid>
           </Box>
         </Box>
-        
+
       </Container>
     </ThemeProvider>
   );
