@@ -11,21 +11,23 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
+  id         String     @id @default(uuid())
   firstName  String?
   lastName   String?
-  email      String?   @unique
+  email      String?    @unique
   address    String?
   phone      String?
   password   String?
   activation Boolean?
-  createdAt  DateTime? @default(now())
-  updatedAt  DateTime? @updatedAt
+  createdAt  DateTime?  @default(now())
+  updatedAt  DateTime?  @updatedAt
   products   Product[]
+  purchases  Purchase[]
+  rentals    Rental[]
 }
 
 model Product {
-  id           Int        @id @default(autoincrement())
+  id           String     @id @default(uuid())
   title        String
   categories   Category[]
   price        Float
@@ -35,10 +37,14 @@ model Product {
   isDeleted    Boolean    @default(false)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  ownerId      Int
+  ownerId      String
   owner        User       @relation(fields: [ownerId], references: [id])
+  purchases    Purchase[]
+  rentals      Rental[]
   // Category     Category?  @relation(fields: [categoryId], references: [id])
   // categoryId   Int?
+  // soldTo       User       @relation(fields: [userId], references: [id])
+  // userId       String
 }
 
 model Category {
@@ -46,5 +52,25 @@ model Category {
   name      String   @unique
   // products  Product[] @relation("ProductToCategory")
   Product   Product? @relation(fields: [productId], references: [id])
-  productId Int?
+  productId String?
+}
+
+model Purchase {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Rental {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
 }

@@ -31,6 +31,9 @@ type User {
   activation: Boolean!
   createdAt: String!
   updatedAt: String!
+  products:   [Product!]!
+  purchases:  [Purchase!]!
+  rentals:    [Rental!]!
 }
 
 type Product {
@@ -46,11 +49,33 @@ type Product {
   updatedAt: String!
   ownerId: Int!
   owner: User!
+  purchases:  [Purchase!]!
+  rentals:    [Rental!]!
 }
 
 type Category {
   id: ID!
   name: String!
+}
+
+type Purchase {
+  id: ID!
+  userId: String!
+  user: User!
+  productId: String!
+  product:   Product!  
+  createdAt: String!
+}
+
+type Rental {
+  id: ID!
+  userId: String!
+  user: User!
+  productId: String!
+  product: Product!
+  startDate: String!
+  endDate: String!
+  createdAt: String!
 }
 `);
 
@@ -112,6 +137,7 @@ const root = {
     });
     return products;
   },
+
 };
 
 const app = express();
