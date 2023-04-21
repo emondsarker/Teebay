@@ -17,7 +17,22 @@ type Query {
 
 type Mutation {
   signUpUser(firstName: String!, lastName: String!, email: String!, address: String!, phone: String!, password: String!, activation: Boolean!): User
-  createProduct(title: String!, categoryId: Int!, price: Float!, rent: Float!, rentInterval: String!, ownerId: Int!): Product
+  createProduct(input: ProductInput!): Product!
+  addProduct(title: String!, description: String!, categories: [CategoryInput!]!, price: Float!, rent: Float!, rentInterval: String!, isDeleted: Boolean!, ownerId: String!): Product
+}
+
+input ProductInput {
+  title: String!
+  description: String!
+  categories: [ID!]!
+  price: Float!
+  rent: Float!
+  rentInterval: String!
+  ownerId: String!
+}
+
+input CategoryInput {
+  id: ID!
 }
 
 type User {
@@ -31,47 +46,50 @@ type User {
   activation: Boolean!
   createdAt: String!
   updatedAt: String!
-  products:   [Product!]!
-  purchases:  [Purchase!]!
-  rentals:    [Rental!]!
+  products:   [Product]
+  purchases:  [Purchase]
+  rentals:    [Rental]
 }
 
 type Product {
   id: ID!
   title: String!
-  categories: [Category!]!
+  description: String!
+  categories: [Category]
   price: Float!
   rent: Float!
   rentInterval: String!
-  productId: String!
   isDeleted: Boolean!
   createdAt: String!
   updatedAt: String!
-  ownerId: Int!
+  ownerId: ID!
   owner: User!
-  purchases:  [Purchase!]!
-  rentals:    [Rental!]!
+  purchases: [Purchase]
+  rentals: [Rental]
 }
 
 type Category {
   id: ID!
   name: String!
+  Product: Product
+  productId: ID
 }
+
 
 type Purchase {
   id: ID!
-  userId: String!
+  userId: ID!
   user: User!
-  productId: String!
-  product:   Product!  
+  productId: ID!
+  product: Product!
   createdAt: String!
 }
 
 type Rental {
   id: ID!
-  userId: String!
+  userId: ID!
   user: User!
-  productId: String!
+  productId: ID!
   product: Product!
   startDate: String!
   endDate: String!
@@ -108,24 +126,53 @@ const root = {
 
     return user;
   },
-  createProduct: async (args) => {
+  addProduct: async (args) => {
+    // console.log(args)
+    let arr = []
+    for (i = 0; i < args.categories.length; i++) {
+      arr.push(parseInt(args.categories[i].id))
+    }
+    console.log(arr)
     const newProduct = await prisma.product.create({
       data: {
         title: args.title,
+        description: args.description,
+        categories: {
+          connect: arr.map((categoryId) => ({ id: categoryId })),
+        },
         price: args.price,
         rent: args.rent,
         rentInterval: args.rentInterval,
-        ownerId: args.ownerId,
+        isDeleted: args.isDeleted,
+        ownerId: args.ownerId
+      },
+    });
+    return newProduct;
+  },
+  createProduct: async (_, { input }, { prisma }) => {
+    const { title, categories, price, rent, rentInterval, productId, ownerId } = input;
+
+    const createdProduct = await prisma.product.create({
+      data: {
+        title,
+        price,
+        rent,
+        rentInterval,
+        productId,
+        ownerId,
         categories: {
-          connect: { id: args.categoryId },
+          connect: categories.map((categoryId) => ({ id: categoryId })),
         },
       },
       include: {
         categories: true,
         owner: true,
+        purchases: true,
+        rentals: true,
       },
     });
-    return newProduct;
+
+    return createdProduct;
   },
   products: async () => {
     const products = await prisma.product.findMany({
@@ -161,8 +208,47 @@ app.listen(port, () => console.log(`Server is running on port ${port}`));
 async function main() {
   // const user = await prisma.user.deleteMany();
   // console.log(user)
-  console.log(await prisma.user.findMany())
+  // console.log(await prisma.user.findMany())
+  // console.log(await prisma.category.createMany({
+  //   data: [
+  //     { name: "Electronics" },
+  //     { name: "FURNITURE" },
+  //     { name: "HOME APPLIANCES" },
+  //     { name: "SPORTING GOODS" },
+  //     { name: "OUTDOOR" },
+  //     { name: "TOYS" }
+  //   ],
+  //   skipDuplicates: true
+  // }))
+  // console.log(await prisma.category.findMany())
 
+  let testProduct = {
+    title: "test",
+    description: "test description",
+    categories: [1, 2],
+    price: 10,
+    rent: 20,
+    rentInterval: 'daily',
+    isDeleted: false,
+    ownerId: "a119942a-a419-4c34-80e9-0194a6636a1c"
+  }
+
+  // console.log(await prisma.product.create({
+  //   data: {
+  //     title: testProduct.title,
+  //     description: testProduct.description,
+  //     categories: {
+  //       connect: testProduct.categories.map((categoryId) => ({ id: categoryId })),
+  //     },
+  //     price: testProduct.price,
+  //     rent: testProduct.rent,
+  //     rentInterval: testProduct.rentInterval,
+  //     isDeleted: testProduct.isDeleted,
+  //     ownerId: testProduct.ownerId
+  //   }
+  // }))
+  console.log(await prisma.product.findMany())
+  console.log(await prisma.category.findMany())
 }
 
 main()
