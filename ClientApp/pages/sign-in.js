@@ -15,6 +15,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
 import { useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
+import cache from '../components/cache.js'
 
 const LOGIN_USER = gql`
   query LoginUser($email: String!, $password: String!) {
@@ -53,6 +54,18 @@ export default function SignIn() {
       const { data } = await refetch({ email: formData.email, password: formData.password });
       console.log('User logged in successfully:', data.loginUser);
       // Save the user data or token in local storage or state management for further authentication
+      cache.writeQuery({
+        query: gql`
+        query IsUserLoggedIn {
+          isLoggedIn
+          userId
+        }
+        `,
+        data: {
+          isLoggedIn: true,
+          userId: data.loginUser.id,
+        },
+      });
     } catch (error) {
       console.error(error);
       alert('Error logging in');
