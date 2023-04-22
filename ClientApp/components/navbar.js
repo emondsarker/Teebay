@@ -13,12 +13,40 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+
 const pages = ['My Products', 'All Products', 'Transcation'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [name, setName] = React.useState("");
+
+  const router = useRouter()
+  useEffect(() => {
+    // redirect()
+    let userId = window.localStorage.getItem("userId")
+    if (userId == null) {
+      router.push('/sign-in')
+    } else {
+      setName(window.localStorage.getItem("name"))
+    }
+
+    if (router.pathname === '/my-products') {
+      console.log('my-products')
+      document.getElementById('my-products').style.cssText = "color: white; background-color: purple; font-weight: bold"
+    }
+    if (router.pathname === '/all-products') {
+      console.log('my-products')
+      document.getElementById('all-products').style.cssText = "color: white; background-color: purple; font-weight: bold"
+    }
+    if (router.pathname === '/transaction') {
+      console.log('my-products')
+      document.getElementById('transaction').style.cssText = "color: white; background-color: purple; font-weight: bold"
+    }
+
+  }, [])
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -35,11 +63,16 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
+  const logout = () => {
+    localStorage.removeItem("name")
+    localStorage.removeItem("email")
+    localStorage.removeItem("userId")
+  }
+
   return (
-    <AppBar position="static" sx={{background:'white', color:'grey'}}>
+    <div position="static" sx={{ background: 'white', color: 'grey' }}>
       <Container >
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
           <Typography
             variant="h6"
             noWrap
@@ -88,8 +121,8 @@ function ResponsiveAppBar() {
               }}
             >
               <MenuItem onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">Hi</Typography>
-                </MenuItem>
+                <Typography textAlign="center">Hi</Typography>
+              </MenuItem>
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
@@ -113,30 +146,30 @@ function ResponsiveAppBar() {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             <Link href="/all-products">
-                <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: 'black', display: 'block' }}>
-                    All Products
-                </Button>
-            </Link> 
+              <Button onClick={handleCloseNavMenu} id="all-products" sx={{ my: 2, color: 'black', display: 'block' }}>
+                All Products
+              </Button>
+            </Link>
             <Link href="/my-products">
-                <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: 'black', display: 'block' }}>
-                    My Products
-                </Button>
+              <Button onClick={handleCloseNavMenu} id="my-products" sx={{ my: 2, color: 'black', display: 'block' }}>
+                My Products
+              </Button>
             </Link>
             <Link href="/transaction">
-                <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: 'black', display: 'block' }}>
-                    Transcation
-                </Button>
+              <Button onClick={handleCloseNavMenu} id="transaction" sx={{ my: 2, color: 'black', display: 'block' }}>
+                Transcation
+              </Button>
             </Link>
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt={name} src=" " />
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: '45px' }}
+              sx={{ mt: '45px', minWidth: '500px' }}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{
@@ -151,16 +184,17 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem>
+                <Typography textAlign="center"><b> {name} </b></Typography>
+              </MenuItem>
+              <MenuItem onClick={logout}>
+                <Typography textAlign="center">Logout</Typography>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
       </Container>
-    </AppBar>
+    </div>
   );
 }
 export default ResponsiveAppBar;

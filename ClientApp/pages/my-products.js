@@ -48,7 +48,7 @@ export default function MyProducts() {
 
   useEffect(() => {
     // redirect()
-    let userId = window.localStorage.getItem("usersId")
+    let userId = window.localStorage.getItem("userId")
     if (userId == null) {
       router.push('/sign-in')
     }

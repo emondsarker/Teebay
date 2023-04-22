@@ -15,6 +15,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
 import { useState } from 'react';
 import { gql, useQuery, useApolloClient } from '@apollo/client';
+import { useRouter } from 'next/router';
 // import cache from '../components/cache.js'
 
 const LOGIN_USER = gql`
@@ -38,7 +39,7 @@ export default function SignIn() {
 
 
   const client = useApolloClient();
-
+  const router = useRouter()
   const { loading, error, data, refetch } = useQuery(LOGIN_USER, {
     variables: { email: '', password: '' },
     skip: true,
@@ -77,7 +78,7 @@ export default function SignIn() {
       // for now save in localStorage
       window.localStorage.setItem("userId", data.loginUser.id)
       window.localStorage.setItem("email", data.loginUser.email)
-      window.localStorage.setItem("name", data.loginUser.firstName + data.loginUser.lastName)
+      window.localStorage.setItem("name", data.loginUser.firstName + " " + data.loginUser.lastName)
 
       console.log(
         window.localStorage.getItem("userId"),
@@ -87,7 +88,7 @@ export default function SignIn() {
 
       const data2 = client.readQuery({ query: IS_LOGGED_IN })
       console.log(data2)
-
+      router.push('/my-products')
     } catch (error) {
       console.error(error);
       alert('Error logging in');

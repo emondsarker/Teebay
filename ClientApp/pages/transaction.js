@@ -7,7 +7,7 @@ export default function Transcation() {
     const router = useRouter()
 
     useEffect(() => {
-        let userId = window.localStorage.getItem("usersId")
+        let userId = window.localStorage.getItem("userId")
         if (userId == null) {
             router.push('/sign-in')
         }
