@@ -14,8 +14,8 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
 import { useState } from 'react';
-import { gql, useQuery } from '@apollo/client';
-import cache from '../components/cache.js'
+import { gql, useQuery, useApolloClient } from '@apollo/client';
+// import cache from '../components/cache.js'
 
 const LOGIN_USER = gql`
   query LoginUser($email: String!, $password: String!) {
@@ -27,10 +27,17 @@ const LOGIN_USER = gql`
     }
   }
 `;
+const IS_LOGGED_IN = gql`
+  query IsUserLoggedIn {
+    isLoggedIn @client
+  }
+`;
 const theme = createTheme();
 
 export default function SignIn() {
 
+
+  const client = useApolloClient();
 
   const { loading, error, data, refetch } = useQuery(LOGIN_USER, {
     variables: { email: '', password: '' },
@@ -54,7 +61,7 @@ export default function SignIn() {
       const { data } = await refetch({ email: formData.email, password: formData.password });
       console.log('User logged in successfully:', data.loginUser);
       // Save the user data or token in local storage or state management for further authentication
-      cache.writeQuery({
+      client.writeQuery({
         query: gql`
         query IsUserLoggedIn {
           isLoggedIn
@@ -66,6 +73,21 @@ export default function SignIn() {
           userId: data.loginUser.id,
         },
       });
+
+      // for now save in localStorage
+      window.localStorage.setItem("userId", data.loginUser.id)
+      window.localStorage.setItem("email", data.loginUser.email)
+      window.localStorage.setItem("name", data.loginUser.firstName + data.loginUser.lastName)
+
+      console.log(
+        window.localStorage.getItem("userId"),
+        window.localStorage.getItem("email"),
+        window.localStorage.getItem("name")
+      )
+
+      const data2 = client.readQuery({ query: IS_LOGGED_IN })
+      console.log(data2)
+
     } catch (error) {
       console.error(error);
       alert('Error logging in');

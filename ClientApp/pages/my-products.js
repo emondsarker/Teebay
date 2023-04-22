@@ -6,9 +6,12 @@ import { Box } from '@mui/system'
 import { Button } from '@mui/material'
 import styles from '../styles/teebay.module.css'
 import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import { gql, useQuery, useApolloClient } from '@apollo/client'
+// import cache from '../components/cache'
 
 export default function MyProducts() {
-  
+
   // test data 
   const test = {
     title: "Cricket kit",
@@ -21,33 +24,59 @@ export default function MyProducts() {
     views: "156"
   }
   const router = useRouter()
-  const handleAddProduct=()=>{
-    
+  const handleAddProduct = () => {
+
     router.push('/add-product')
     console.log("pressed")
   }
 
+  const IS_LOGGED_IN = gql`
+  query IsUserLoggedIn {
+    isLoggedIn @client
+  }
+`;
+
+  const client = useApolloClient();
+  async function redirect() {
+    let data = await client.query({ query: IS_LOGGED_IN, fetchPolicy: 'cache-only' })
+    console.log(data)
+    // if (!isLoggedIn) {
+    //   // router.push('/sign-in')
+    //   console.log("uhoh")
+    // }
+  }
+
+  useEffect(() => {
+    // redirect()
+    let userId = window.localStorage.getItem("usersId")
+    if (userId == null) {
+      router.push('/sign-in')
+    }
+
+  }, [])
+
   return (
 
     <div>
-      <ResponsiveAppBar/>
+      <ResponsiveAppBar />
       <div className={styles.body}>
-        
-        <MyProductCard data={test}/>
+
+        <MyProductCard data={test} />
 
         <div className={styles.buttonContainer}>
-          
-          <button className={styles.rightButton} onClick={()=>{handleAddProduct()}}>
+
+          <button className={styles.rightButton} onClick={() => { handleAddProduct() }}>
             Add Product
           </button>
-        </div>  
-        
+        </div>
+
 
       </div>
-     
+
     </div>
-   
+
   )
 }
+
 
 

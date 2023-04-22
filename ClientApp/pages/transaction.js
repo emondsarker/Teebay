@@ -3,17 +3,21 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from '../styles/teebay.module.css'
 
-export default function Transcation(){
+export default function Transcation() {
     const router = useRouter()
-    
-    useEffect(()=>{
-        router.push('/transaction/?category=bought', undefined, {shallow: true})
+
+    useEffect(() => {
+        let userId = window.localStorage.getItem("usersId")
+        if (userId == null) {
+            router.push('/sign-in')
+        }
+        router.push('/transaction/?category=bought', undefined, { shallow: true })
         // dirty fix: initialized to bought page
         router.query.category = "bought"
         // better fix: query url better, maybe use middleware?
     }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
         // change other class to default
         document.getElementById('bought').style.cssText = "color: grey; border-bottom-color: white"
         document.getElementById('sold').style.cssText = "color: grey; border-bottom-color: white"
@@ -21,66 +25,66 @@ export default function Transcation(){
         document.getElementById('lent').style.cssText = "color: grey; border-bottom-color: white"
         // set active class 
         document.getElementById(router.query.category).style.cssText = "color: purple; border-bottom-color: purple"
-        
-    },[router.query.category])
 
-    function shallowRouting(value){
+    }, [router.query.category])
+
+    function shallowRouting(value) {
         console.log(value)
         console.log(router.query.category)
-        router.push('/transaction/?category='+value, undefined, {shallow: true})
+        router.push('/transaction/?category=' + value, undefined, { shallow: true })
     }
-    return(
+    return (
         <>
-            <ResponsiveAppBar/>
+            <ResponsiveAppBar />
             <div className={styles.transactionTabs}>
-                <button id="bought" onClick={()=>shallowRouting("bought")}>
+                <button id="bought" onClick={() => shallowRouting("bought")}>
                     Bought
                 </button>
-                <button id="sold" onClick={()=>shallowRouting("sold")}>
+                <button id="sold" onClick={() => shallowRouting("sold")}>
                     Sold
                 </button>
-                <button id="borrowed" onClick={()=>shallowRouting("borrowed")}>
+                <button id="borrowed" onClick={() => shallowRouting("borrowed")}>
                     Borrowed
                 </button>
-                <button id="lent" onClick={()=>shallowRouting("lent")}>
+                <button id="lent" onClick={() => shallowRouting("lent")}>
                     Lent
                 </button>
             </div>
 
             {
                 ((router.query.category == "bought")) ?
-                (
-                    <h1>Bought</h1>
-                ) : (
-                    <></>
-                )
+                    (
+                        <h1>Bought</h1>
+                    ) : (
+                        <></>
+                    )
             }
 
             {
                 ((router.query.category == "sold")) ?
-                (
-                    <h1>Sold</h1>
-                ) : (
-                    <></>
-                )
+                    (
+                        <h1>Sold</h1>
+                    ) : (
+                        <></>
+                    )
             }
 
             {
                 ((router.query.category == "borrowed")) ?
-                (
-                    <h1>Borrowed</h1>
-                ) : (
-                    <></>
-                )
+                    (
+                        <h1>Borrowed</h1>
+                    ) : (
+                        <></>
+                    )
             }
 
             {
                 ((router.query.category == "lent")) ?
-                (
-                    <h1>Lent</h1>
-                ) : (
-                    <></>
-                )
+                    (
+                        <h1>Lent</h1>
+                    ) : (
+                        <></>
+                    )
             }
         </>
     )
