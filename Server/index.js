@@ -13,6 +13,7 @@ const schema = buildSchema(`
 type Query {
   loginUser(email: String!, password: String!): User
   products: [Product]
+  myProducts(userId: String!): [Product]
 }
 
 type Mutation {
@@ -177,6 +178,17 @@ const root = {
   products: async () => {
     const products = await prisma.product.findMany({
       where: { isDeleted: false },
+      include: {
+        categories: true,
+        owner: true,
+      },
+    });
+    return products;
+  },
+  myProducts: async (args) => {
+    console.log(args)
+    const products = await prisma.product.findMany({
+      where: { isDeleted: false, ownerId: args.userId },
       include: {
         categories: true,
         owner: true,
