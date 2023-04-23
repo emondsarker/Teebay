@@ -34,7 +34,7 @@ export default function ProductCard(data) {
     }
 
     return (
-        <Card sx={{ width: '70%', marginBottom: 3, padding: 2 }}>
+        <Card sx={{ width: '100%', marginBottom: 3, padding: 2 }}>
             <Grid container spacing={0}>
                 <Grid item sm={11}>
                     <Typography variant="h4" sx={titleStyle}>

@@ -5,23 +5,15 @@ import ProductCard from '../components/ProductCard'
 import { Box } from '@mui/system'
 import { useEffect, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
+import Link from 'next/link'
 
 export default function MyProducts() {
   const [productData, setProductData] = useState([{}])
-  const test = {
-    title: "Cricket kit",
-    categories: "Sporting Goods, Outdoor",
-    price: "500",
-    rent: "100",
-    interval: "daily",
-    description: "2016 cricket kit brand new in box. Never used. Bought from the shop. Professional kit. Pick up item please.",
-    date: "21st August 2020",
-    views: "156"
-  }
 
   const ALL_PRODUCTS = gql`
   query products {
     products {
+      id
       title
       description
       categories {
@@ -72,8 +64,10 @@ export default function MyProducts() {
             {productData.map((data) => (
               // 
               <>
-                <ProductCard sx={{ minWidth: '500px' }} data={data} />
-                {console.log(data)}
+                <Link href={"/product/" + data.id}>
+                  <ProductCard sx={{ minWidth: '500px' }} data={data} />
+                  {console.log(data)}
+                </Link>
               </>
 
             ))}
