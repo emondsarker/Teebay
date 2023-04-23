@@ -14,6 +14,7 @@ type Query {
   loginUser(email: String!, password: String!): User
   products: [Product]
   myProducts(userId: String!): [Product]
+  categories: [Category]
 }
 
 type Mutation {
@@ -174,6 +175,10 @@ const root = {
     });
 
     return createdProduct;
+  },
+  categories: async () => {
+    const categories = await prisma.category.findMany()
+    return categories;
   },
   products: async () => {
     const products = await prisma.product.findMany({

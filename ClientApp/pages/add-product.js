@@ -12,7 +12,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Chip from '@mui/material/Chip';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 const CREATE_PRODUCT = gql`
    mutation addProduct(
@@ -49,11 +49,35 @@ const CREATE_PRODUCT = gql`
     }
   }
 `
+const GET_CATEGORIES = gql`
+    query categories {
+        categories {
+            id
+            name
+        }
+    }
+`
 
 export default function AddProduct() {
 
     // GQL hook
     const [addProduct, { data }] = useMutation(CREATE_PRODUCT)
+
+    const { loading, error, categoriesData, refetch } = useQuery(GET_CATEGORIES, {
+        onCompleted: (data) => {
+            console.log(data.categories)
+            let array = []
+            let name = []
+            for (let i = 0; i < data.categories.length; i++) {
+                array[i] = data.categories[i]
+                name[i] = data.categories[i].name
+            }
+            setCategoryList(array)
+            setCategoryNameList(name)
+            console.log(name)
+        }
+    })
+
 
     // Product Details
     const [title, setTitle] = useState("")
@@ -62,10 +86,16 @@ export default function AddProduct() {
     const [interval, setInterval] = useState("")
     const [rent, setRent] = useState("")
     const [categories, setCategories] = useState([])
+    const [categoriesName, setCategoriesName] = useState([])
+
+    // Categories
+    const [categoryNameList, setCategoryNameList] = useState([""])
+    const [categoryList, setCategoryList] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState([]);
 
     const router = useRouter()
     useEffect(() => {
-        router.push('/add-product/?step=1', undefined, { shallow: true })
+        // router.push('/add-product/?step=1', undefined, { shallow: true })
         // dirty fix: initialized to bought page
         router.query.step = "1"
         // better fix: query url better, maybe use middleware?
@@ -131,14 +161,9 @@ export default function AddProduct() {
         }
     }
 
-    // dummy values for testing FE
-    const names = [
-        'Oliver Hansen',
-        'Van Henry',
-        'April Tucker',
-        'Ralph Hubbard',
-        'Omar Alexander',
-    ];
+
+
+    // MUI themes, must be cleaned and refactored, too messy
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
     const MenuProps = {
@@ -149,20 +174,20 @@ export default function AddProduct() {
             },
         },
     };
-    function getStyles(name, personName, theme) {
+    function getStyles(name, selectedCategory, theme) {
         return {
             fontWeight:
-                personName.indexOf(name) === -1
+                selectedCategory.indexOf(name) === -1
                     ? theme.typography.fontWeightRegular
                     : theme.typography.fontWeightMedium,
         };
     }
-
     const theme = useTheme();
-    const [personName, setPersonName] = useState([]);
+
 
 
     // Handle input events
+
     const handleTitleChange = (event) => {
         setTitle(event.target.value)
     }
@@ -170,12 +195,26 @@ export default function AddProduct() {
         const {
             target: { value },
         } = event;
-        setPersonName(
+        setSelectedCategory(
             // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,
         );
-        setCategories(value)
-        console.log(categories)
+
+        // this is to match the category ID user selected to that from the database
+        let arr = []
+        let name = []
+        for (let i = 0; i < value.length; i++) {
+            for (let j = 0; j < categoryList.length; j++) {
+                if (value[i] == categoryList[j].name) {
+                    // console.log(categoryList[j].id, value[i])
+                    arr[i] = categoryList[j].id
+                    name[i] = categoryList[j].name
+                }
+            }
+        }
+        setCategories(arr)
+        setCategoriesName(name)
+        console.log(arr)
     };
     const handleDescriptionChange = (event) => {
         setDescription(event.target.value)
@@ -190,30 +229,28 @@ export default function AddProduct() {
         setRent(event.target.value);
     }
     const handleSubmit = async () => {
-
-        // GQL schema
-        //     title: $title
-        //   description: $description
-        //   categories: $categories
-        //   price: $price
-        //   rent: $rent
-        //   rentInterval: $rentInterval
-        //   isDeleted: $isDeleted
-        //   ownerId: $ownerId
-
-        let formData = {
-            title: "test",
-            description: "test description",
-            categories: [{ id: 1 }, { id: 2 }],
-            price: 10,
-            rent: 20,
-            rentInterval: 'daily',
-            isDeleted: false,
-            ownerId: "a119942a-a419-4c34-80e9-0194a6636a1c"
+        // turn an array of ints for IDs, eg: [1,2]
+        // to an array of objects, eg: [ { id:1 }, { id:2 }]
+        // necessary to pass data through GQL
+        let arr = []
+        for (let i = 0; i < categories.length; i++) {
+            arr[i] = { id: categories[i] }
         }
 
+        // construct object with user input
+        let formData = {
+            title: title,
+            description: description,
+            categories: arr,
+            price: parseFloat(price),
+            rent: parseFloat(rent),
+            rentInterval: interval,
+            isDeleted: false,
+            ownerId: localStorage.getItem("userId")
+        }
         console.log(formData)
 
+        // pass it to server
         try {
             await addProduct({ variables: { ...formData, activation: true } })
             alert('Added product successfully')
@@ -222,10 +259,9 @@ export default function AddProduct() {
             console.error(error)
             alert('Error creating user')
         }
-
     }
 
-    //
+    // If you press enter, it goes to next page
     const handleKeyDown = (event) => {
         if (event.key == "Enter") {
             nextStep()
@@ -286,12 +322,12 @@ export default function AddProduct() {
                             <div className={styles.AddProductContainer}>
                                 <h1>Select Categories</h1>
                                 <FormControl sx={{ m: 1, width: '100%' }}>
-                                    <InputLabel id="demo-multiple-chip-label">Chip</InputLabel>
+
                                     <Select
                                         labelId="demo-multiple-chip-label"
                                         id="demo-multiple-chip"
                                         multiple
-                                        value={personName}
+                                        value={selectedCategory}
                                         autoWidth
                                         sx={{ width: '100%' }}
                                         onChange={handleChange}
@@ -305,11 +341,11 @@ export default function AddProduct() {
                                         )}
                                         MenuProps={MenuProps}
                                     >
-                                        {names.map((name) => (
+                                        {categoryNameList.map((name) => (
                                             <MenuItem
                                                 key={name}
                                                 value={name}
-                                                style={getStyles(name, personName, theme)}
+                                                style={getStyles(name, selectedCategory, theme)}
                                             >
                                                 {name}
                                             </MenuItem>
@@ -402,18 +438,15 @@ export default function AddProduct() {
                             <div className={styles.AddProductContainer}>
                                 <h1>Summary</h1>
                                 <div className={styles.summary}>
-                                    <p>Title: {title}</p>
-                                    <p>Categories: {categories.map((name) => (
-                                        <MenuItem
-                                            key={name}
-                                            value={name}
-                                            style={getStyles(name, personName, theme)}
-                                        >
-                                            {name}
-                                        </MenuItem>
-                                    ))}</p>
-                                    <p>Description: {description}</p>
-                                    <p>Price: {price}, To rent: {rent} per {interval}</p>
+                                    <p>Product Details:</p>
+                                    <h2>{title}</h2>
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {categoriesName.map((value) => (
+                                            <Chip key={value} label={value} />
+                                        ))}
+                                    </Box>
+                                    <p>{description}</p>
+                                    <p>Price: <b>{price}</b>, To rent: <b>{rent}</b> on a <b>{interval}</b> basis</p>
                                 </div>
                             </div>
                         ) : (
