@@ -2,8 +2,20 @@ import { useRouter } from "next/router";
 import { use, useEffect, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import styles from '../../styles/teebay.module.css'
-import { Typography, Box, Chip } from "@mui/material";
+import { Typography, Box, Chip, Button } from "@mui/material";
 import ResponsiveAppBar from "../../components/navbar";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from "dayjs";
+import { DateField } from "@mui/x-date-pickers";
+
+
 
 export default function Product() {
     const [productData, setProductData] = useState([])
@@ -11,6 +23,32 @@ export default function Product() {
     const [categoryNameList, setCategoryNameList] = useState([""])
     const [categoryList, setCategoryList] = useState([])
     const [categoriesName, setCategoriesName] = useState([]);
+
+    // Rent Config
+    const [openRent, setOpenRent] = useState(false);
+    const [rentStartDate, setRentStartDate] = useState();
+    const [rentEndDate, setRentEndDate] = useState();
+    const handleRent = () => {
+        setOpenRent(true);
+    };
+    const handleClose = () => {
+        setOpenRent(false);
+        setOpenBuy(false)
+    };
+    const startDate = (event) => {
+        console.log(event.$d)
+        setRentStartDate(event.$d)
+    }
+    const endDate = (event) => {
+        console.log(event.$d)
+        setRentEndDate(event.$d)
+    }
+
+    // Buy Config
+    const [openBuy, setOpenBuy] = useState(false)
+    const handleBuy = () => {
+        setOpenBuy(true);
+    };
 
     const router = useRouter()
     const { id } = router.query
@@ -122,14 +160,69 @@ export default function Product() {
                 <Typography>{productData.description}</Typography>
                 <br />
                 <div className={styles.buttonContainer}>
-                    <button className={styles.rightButton} onClick={() => { handleAddProduct() }}>
+                    <button className={styles.rightButton} onClick={() => { handleRent() }}>
                         Rent
                     </button>
-                    <button className={styles.rightButton} onClick={() => { handleAddProduct() }}>
+                    <button className={styles.rightButton} onClick={() => { handleBuy() }}>
                         Buy
                     </button>
                 </div>
             </div>
+
+            <Dialog
+                open={openRent}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    Rental Period
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        To rent this product, please pick a start and end date for rental.
+                    </DialogContentText>
+                    <br />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker label="Start" onChange={startDate} />
+                        {" "}
+                        <DatePicker label="End" onChange={endDate} />
+                        {/* <DateField value={dayjs(rentStartDate)} /> */}
+                    </LocalizationProvider>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} sx={{ backgroundColor: 'red', '&:hover': { backgroundColor: 'red' }, color: 'white' }}>
+                        Go Back
+                    </Button>
+                    <Button onClick={handleClose} autoFocus sx={{ background: 'grey', '&:hover': { backgroundColor: 'limegreen' }, color: 'white' }}>
+                        Confirm Rent
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={openBuy}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {productData.title} ${productData.price}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to buy this product?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} sx={{ backgroundColor: 'red', '&:hover': { backgroundColor: 'red' }, color: 'white' }}>
+                        No
+                    </Button>
+                    <Button onClick={handleClose} autoFocus sx={{ background: 'limegreen', '&:hover': { backgroundColor: 'limegreen' }, color: 'white' }}>
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }
