@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { gql, useQuery, useApolloClient } from '@apollo/client'
 import ProductCard from '../components/ProductCard'
+import Link from 'next/link'
 // import cache from '../components/cache'
 
 export default function MyProducts() {
@@ -41,6 +42,7 @@ export default function MyProducts() {
   const MY_PRODUCTS = gql`
   query myProducts($userId: String!) {
     myProducts(userId: $userId) {
+      id
       title
       description
       categories {
@@ -108,8 +110,11 @@ export default function MyProducts() {
             {productData.map((data) => (
               // 
               <>
-                <ProductCard sx={{ minWidth: '500px' }} data={data} />
-                {console.log(data)}
+                <Link href={"/my-product/" + data.id}>
+                  <ProductCard sx={{ minWidth: '500px' }} data={data} />
+
+                </Link>
+
               </>
 
             ))}
