@@ -1,11 +1,9 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -14,18 +12,18 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const pages = ['My Products', 'All Products', 'Transcation'];
 
 function ResponsiveAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const [name, setName] = React.useState("");
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const [name, setName] = useState("");
 
   const router = useRouter()
   useEffect(() => {
-    // redirect()
+    // redirect if not logged in
     let userId = window.localStorage.getItem("userId")
     if (userId == null) {
       router.push('/sign-in')
@@ -33,11 +31,12 @@ function ResponsiveAppBar() {
       setName(window.localStorage.getItem("name"))
     }
 
-    if (router.pathname === '/my-products') {
+    // Indicates current part of the website on the navbar for better UX
+    if (router.pathname === '/my-products' || router.pathname === '/my-product/[id]') {
       console.log('my-products')
       document.getElementById('my-products').style.cssText = "color: white; background-color: purple; font-weight: bold"
     }
-    if (router.pathname === '/all-products') {
+    if (router.pathname === '/all-products' || router.pathname === '/product/[id]') {
       console.log('my-products')
       document.getElementById('all-products').style.cssText = "color: white; background-color: purple; font-weight: bold"
     }
@@ -48,25 +47,23 @@ function ResponsiveAppBar() {
 
   }, [])
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
-
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
 
   const logout = () => {
+    // clear localStorage, update this when auth is more secure
     localStorage.removeItem("name")
     localStorage.removeItem("email")
     localStorage.removeItem("userId")
+    router.push('/sign-in')
   }
 
   return (
@@ -91,60 +88,9 @@ function ResponsiveAppBar() {
             Teebay
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: 'block', md: 'none' },
-              }}
-            >
-              <MenuItem onClick={handleCloseNavMenu}>
-                <Typography textAlign="center">Hi</Typography>
-              </MenuItem>
-            </Menu>
-          </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href=""
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            LOGO
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+
+
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
             <Link href="/all-products">
               <Button onClick={handleCloseNavMenu} id="all-products" sx={{ my: 2, color: 'black', display: 'block' }}>
                 All Products
