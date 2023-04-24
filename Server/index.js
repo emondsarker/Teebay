@@ -22,6 +22,7 @@ type Mutation {
   signUpUser(firstName: String!, lastName: String!, email: String!, address: String!, phone: String!, password: String!, activation: Boolean!): User
   createProduct(input: ProductInput!): Product!
   addProduct(title: String!, description: String!, categories: [CategoryInput!]!, price: Float!, rent: Float!, rentInterval: String!, isDeleted: Boolean!, ownerId: String!): Product
+  updateProduct(productId: String!, title: String!, description: String!, categories: [CategoryInput!]!, price: Float!, rent: Float!, rentInterval: String!): Product
   deleteProduct(productId: String!, userId: String!): Product!
 }
 
@@ -150,6 +151,28 @@ const root = {
         rentInterval: args.rentInterval,
         isDeleted: args.isDeleted,
         ownerId: args.ownerId
+      },
+    });
+    return newProduct;
+  },
+  updateProduct: async (args) => {
+    // console.log(args)
+    let arr = []
+    for (i = 0; i < args.categories.length; i++) {
+      arr.push(parseInt(args.categories[i].id))
+    }
+    console.log(arr)
+    const newProduct = await prisma.product.update({
+      where: { id: args.productId },
+      data: {
+        title: args.title,
+        description: args.description,
+        categories: {
+          connect: arr.map((categoryId) => ({ id: categoryId })),
+        },
+        price: args.price,
+        rent: args.rent,
+        rentInterval: args.rentInterval
       },
     });
     return newProduct;

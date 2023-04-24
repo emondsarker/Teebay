@@ -1,8 +1,12 @@
 import { useRouter } from "next/router";
 import { use, useEffect, useState } from 'react'
-import { gql, useQuery } from '@apollo/client'
+import { gql, useQuery, useMutation } from '@apollo/client'
 import styles from '../../styles/teebay.module.css'
-import { InputLabel, Typography, useTheme, OutlinedInput, Box, Chip, Button, TextField, FormControl, Select, MenuItem } from "@mui/material";
+import {
+    InputLabel, Typography, useTheme, OutlinedInput,
+    Box, Chip, Button, TextField, FormControl, Select, MenuItem,
+    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
+} from "@mui/material";
 import ResponsiveAppBar from "../../components/navbar";
 
 
@@ -18,9 +22,48 @@ export default function Product() {
     const [categoryList, setCategoryList] = useState([])
     const [selectedCategory, setSelectedCategory] = useState([]);
 
+    const [openEdit, setOpenEdit] = useState(false)
+    const handleEdit = () => {
+        setOpenEdit(true);
+    };
+    const handleClose = () => {
+        setOpenEdit(false)
+    };
+
     const router = useRouter()
     const { id } = router.query
 
+    const EDIT_PRODUCT = gql`
+        mutation updateProduct(
+            $productId: String!
+            $title: String!
+            $description: String!
+            $categories: [CategoryInput!]!
+            $price: Float!
+            $rent: Float!
+            $rentInterval: String!
+        ) {
+            updateProduct(
+            productId: $productId
+            title: $title
+            description: $description
+            categories: $categories
+            price: $price
+            rent: $rent
+            rentInterval: $rentInterval
+            ) {
+            id
+            title
+            description
+            categories{
+                id
+            }
+            price
+            rent 
+            rentInterval
+            }
+        }
+        `
     const PRODUCT = gql`
         query product($productId: String!) {
             product(productId: $productId) {
@@ -82,6 +125,38 @@ export default function Product() {
         }
     })
 
+    // GQL hook
+    const [editProduct, { data2 }] = useMutation(EDIT_PRODUCT)
+
+    const handleEditForReal = async () => {
+
+        let arr = []
+        for (let i = 0; i < categories.length; i++) {
+            arr[i] = { id: categories[i] }
+        }
+
+        // construct object with user input
+        let formData = {
+            productId: productData.id,
+            title: productData.title,
+            description: productData.description,
+            categories: arr,
+            price: parseFloat(productData.price),
+            rent: parseFloat(productData.rent),
+            rentInterval: productData.rentInterval,
+        }
+        console.log(formData)
+
+        // pass it to server
+        try {
+            await editProduct({ variables: { ...formData, activation: true } })
+            alert('Added product successfully')
+            console.log(data)
+        } catch (error) {
+            console.error(error)
+            alert('Error creating user')
+        }
+    }
 
     useEffect(() => {
         let userId = window.localStorage.getItem("userId")
@@ -291,13 +366,35 @@ export default function Product() {
 
                 <br />
                 <div className={styles.buttonContainer}>
-                    <button className={styles.rightButton} onClick={() => { handleBuy() }}>
+                    <button className={styles.rightButton} onClick={() => { handleEdit() }}>
                         Edit Product
                     </button>
                 </div>
             </div>
 
-
+            <Dialog
+                open={openEdit}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    Confirm Edit Product
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Save thes changes?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} sx={{ backgroundColor: 'red', '&:hover': { backgroundColor: 'red' }, color: 'white' }}>
+                        No
+                    </Button>
+                    <Button onClick={handleEditForReal} autoFocus sx={{ background: 'grey', '&:hover': { backgroundColor: 'limegreen' }, color: 'white' }}>
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }
