@@ -24,6 +24,8 @@ type Mutation {
   addProduct(title: String!, description: String!, categories: [CategoryInput!]!, price: Float!, rent: Float!, rentInterval: String!, isDeleted: Boolean!, ownerId: String!): Product
   updateProduct(productId: String!, title: String!, description: String!, categories: [CategoryInput!]!, price: Float!, rent: Float!, rentInterval: String!): Product
   deleteProduct(productId: String!, userId: String!): Product!
+  buyProduct(userId: String!, productId: String!): Purchase!
+  rentProduct(userId: String!, productId: String!, startDate: String!, endDate: String!): Rental!
 }
 
 input ProductInput {
@@ -246,8 +248,40 @@ const root = {
     });
     return products;
   },
+  buyProduct: async (args) => {
+    console.log(args)
+    const product = await prisma.purchase.create({
+      data: {
+        user: { connect: { id: args.userId } },
+        product: { connect: { id: args.productId } }
+      },
+      include: {
+        user: true,
+        product: true
+      }
+    });
+    return product;
+  },
+  rentProduct: async (args) => {
+    // console.log(args)
+    const rental = await prisma.rental.create({
+      data: {
+        user: { connect: { id: args.userId } },
+        product: { connect: { id: args.productId } },
+        startDate: args.startDate,
+        endDate: args.endDate
+      },
+      include: {
+        user: true,
+        product: true
+      }
+    });
+    console.log(rental)
+    return rental;
+  },
 
 };
+
 
 const app = express();
 app.use(cors());

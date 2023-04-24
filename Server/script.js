@@ -1,10 +1,11 @@
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
+const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
 async function main() {
-    const user = await prisma.user.deleteMany();
-    console.log(user)
+    // const user = await prisma.user.deleteMany();
+    // console.log(user)
     console.log(await prisma.user.findMany())
 
 }

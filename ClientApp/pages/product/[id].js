@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { use, useEffect, useState } from 'react'
-import { gql, useQuery } from '@apollo/client'
+import { gql, useQuery, useMutation } from '@apollo/client'
 import styles from '../../styles/teebay.module.css'
 import { Typography, Box, Chip, Button } from "@mui/material";
 import ResponsiveAppBar from "../../components/navbar";
@@ -79,6 +79,58 @@ export default function Product() {
         }
     }
 `
+    const BUY_PRODUCT = gql`
+        mutation buyProduct(
+            $productId: String!
+            $userId: String!
+            ) {
+                buyProduct( 
+                productId: $productId
+                userId: $userId
+            ) {
+                id
+            user {
+            id
+            firstName
+            lastName
+            }
+            product {
+            id
+            title
+            rent
+            rentInterval
+            }
+            }
+        }
+        `
+    const RENT_PRODUCT = gql`
+        mutation rentProduct(
+            $productId: String!
+            $userId: String!
+            $startDate: String!
+            $endDate: String!
+            ) {
+                rentProduct( 
+                productId: $productId
+                userId: $userId
+                startDate: $startDate
+                endDate: $endDate
+            ) {
+                id
+                user {
+                id
+                firstName
+                lastName
+                }
+                product {
+                id
+                title
+                rent
+                rentInterval
+                }
+            }
+        }
+        `
     const { loading, error, data, refetch } = useQuery(PRODUCT, {
         variables: { productId: (id) },
         // skip: true,
@@ -112,6 +164,47 @@ export default function Product() {
             console.log(array)
         }
     })
+
+    const [buyProduct, { data2 }] = useMutation(BUY_PRODUCT)
+    const handleBuyForReal = async () => {
+        let formData = {
+            productId: id,
+            userId: localStorage.getItem("userId")
+        }
+        console.log(formData)
+        // pass it to server
+        try {
+            let message = await buyProduct({ variables: { ...formData, activation: true } })
+            // location.reload()
+            alert('Bought product successfully')
+            console.log(message)
+        } catch (error) {
+            console.error(error)
+            alert('Error Buying Product')
+        }
+    }
+
+    const [rentProduct, { data3 }] = useMutation(BUY_PRODUCT)
+    const handleRentForReal = async () => {
+        let formData = {
+            productId: id,
+            userId: localStorage.getItem("userId"),
+            startDate: String(rentStartDate),
+            endDate: String(rentEndDate)
+        }
+        console.log(formData)
+
+        // pass it to server
+        try {
+            let message = await rentProduct({ variables: { ...formData, activation: true } })
+            // location.reload()
+            alert('Rented product successfully')
+            console.log(message)
+        } catch (error) {
+            console.error(error)
+            alert('Error Renting Product')
+        }
+    }
 
 
     useEffect(() => {
@@ -194,7 +287,7 @@ export default function Product() {
                     <Button onClick={handleClose} sx={{ backgroundColor: 'red', '&:hover': { backgroundColor: 'red' }, color: 'white' }}>
                         Go Back
                     </Button>
-                    <Button onClick={handleClose} autoFocus sx={{ background: 'grey', '&:hover': { backgroundColor: 'limegreen' }, color: 'white' }}>
+                    <Button onClick={handleRentForReal} autoFocus sx={{ background: 'grey', '&:hover': { backgroundColor: 'limegreen' }, color: 'white' }}>
                         Confirm Rent
                     </Button>
                 </DialogActions>
@@ -218,7 +311,7 @@ export default function Product() {
                     <Button onClick={handleClose} sx={{ backgroundColor: 'red', '&:hover': { backgroundColor: 'red' }, color: 'white' }}>
                         No
                     </Button>
-                    <Button onClick={handleClose} autoFocus sx={{ background: 'limegreen', '&:hover': { backgroundColor: 'limegreen' }, color: 'white' }}>
+                    <Button onClick={handleBuyForReal} autoFocus sx={{ background: 'limegreen', '&:hover': { backgroundColor: 'limegreen' }, color: 'white' }}>
                         Yes
                     </Button>
                 </DialogActions>
