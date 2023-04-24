@@ -22,6 +22,7 @@ type Mutation {
   signUpUser(firstName: String!, lastName: String!, email: String!, address: String!, phone: String!, password: String!, activation: Boolean!): User
   createProduct(input: ProductInput!): Product!
   addProduct(title: String!, description: String!, categories: [CategoryInput!]!, price: Float!, rent: Float!, rentInterval: String!, isDeleted: Boolean!, ownerId: String!): Product
+  deleteProduct(productId: String!, userId: String!): Product!
 }
 
 input ProductInput {
@@ -98,6 +99,7 @@ type Rental {
   endDate: String!
   createdAt: String!
 }
+
 `);
 
 const root = {
@@ -210,6 +212,14 @@ const root = {
         categories: true,
         owner: true,
       },
+    });
+    return products;
+  },
+  deleteProduct: async (args) => {
+    console.log(args)
+    const products = await prisma.product.update({
+      where: { id: args.productId },
+      data: { isDeleted: true }
     });
     return products;
   },

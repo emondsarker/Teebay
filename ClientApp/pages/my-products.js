@@ -1,14 +1,14 @@
 import React from 'react'
 import ResponsiveAppBar from '../components/navbar'
 import { InferGetServerSidePropsType } from 'next'
-import MyProductCard from '../components/MyProductCard'
+
 import { Box } from '@mui/system'
 import { Button } from '@mui/material'
 import styles from '../styles/teebay.module.css'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { gql, useQuery, useApolloClient } from '@apollo/client'
-import ProductCard from '../components/ProductCard'
+import MyProductCard from '../components/MyProductCard'
 import Link from 'next/link'
 // import cache from '../components/cache'
 
@@ -110,10 +110,10 @@ export default function MyProducts() {
             {productData.map((data) => (
               // 
               <>
-                <Link href={"/my-product/" + data.id}>
-                  <ProductCard sx={{ minWidth: '500px' }} data={data} />
 
-                </Link>
+                <MyProductCard sx={{ minWidth: '500px' }} data={data} />
+
+
 
               </>
 
