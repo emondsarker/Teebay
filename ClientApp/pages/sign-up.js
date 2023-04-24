@@ -1,20 +1,19 @@
 import { useState } from 'react';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-// import Link from '@mui/material/Link';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
-
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { gql, useMutation } from '@apollo/client';
 
 const SIGN_UP_USER = gql`
@@ -48,6 +47,8 @@ const theme = createTheme();
 
 export default function SignUp() {
 
+  const [showPassword, setShowPassword] = useState(false);
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
   const [signUpUser, { data }] = useMutation(SIGN_UP_USER);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -61,15 +62,30 @@ export default function SignUp() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      firstName: data.get('firstName'),
-      lastName: data.get('lastName'),
-      address: data.get('address'),
-      email: data.get('email'),
-      phone: data.get('phone'),
-      password: data.get('password'),
-      confirmPassword: data.get('confirmPassword')
-    });
+
+    let firstName = data.get('firstName')
+    let lastName = data.get('lastName')
+    let address = data.get('address')
+    let email = data.get('email')
+    let phone = data.get('phone')
+    let password = data.get('password')
+    let confirmPassword = data.get('confirmPassword')
+
+    // perform validation (This can be done better, medium priority)
+    // 1. Check if all fields are filled up
+    // 2. Check if password == confirm password
+    let fieldCheck = true
+    let passwordCheck = true
+    if (firstName == "" || lastName == "" || address == "" || email == "" || phone == "" || password == "" || confirmPassword == "") {
+      setMessage("Fields cannot be empty!")
+      setOpen(true)
+      fieldCheck = false
+    }
+    if (password != confirmPassword) {
+      setMessage("Passwords Do Not Match")
+      setOpen(true)
+      passwordCheck = false
+    }
 
     let formData = {
       firstName: data.get('firstName'),
@@ -81,14 +97,26 @@ export default function SignUp() {
       activation: false,
     }
 
-    try {
-      await signUpUser({ variables: { ...formData, activation: true } });
-      alert('User created successfully');
-    } catch (error) {
-      console.error(error);
-      alert('Error creating user');
+    if (passwordCheck && fieldCheck) {
+      try {
+        await signUpUser({ variables: { ...formData, activation: true } });
+        alert('User created successfully');
+      } catch (error) {
+        console.error(error);
+        alert('Error creating user');
+      }
     }
   };
+
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("Default")
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -161,14 +189,28 @@ export default function SignUp() {
                 />
               </Grid>
               <Grid item xs={12}>
+
+
                 <TextField
                   required
                   fullWidth
                   name="password"
                   label="Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   id="password"
                   autoComplete="new-password"
+                  InputProps={{
+                    endAdornment:
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -177,9 +219,21 @@ export default function SignUp() {
                   fullWidth
                   name="confirmPassword"
                   label="Confirm Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   id="confirmPassword"
                   autoComplete="new-password"
+                  InputProps={{
+                    endAdornment:
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                  }}
                 />
               </Grid>
 
@@ -188,7 +242,7 @@ export default function SignUp() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, background: "purple", '&:hover': { background: "purple" } }}
             >
               Sign Up
             </Button>
@@ -203,6 +257,11 @@ export default function SignUp() {
         </Box>
 
       </Container>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <MuiAlert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          {message}
+        </MuiAlert>
+      </Snackbar>
     </ThemeProvider>
   );
 }
