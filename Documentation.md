@@ -185,4 +185,5 @@ End-to-end tests should be implemented using Cypress.
 
 Some potential areas for future work include:
 
-1. Implementing additional features, such as advanced filtering and sorting options for products, purchases,
+- advanced filtering 
+- sorting options for products, purchases
