@@ -1,22 +1,24 @@
-# Full-Stack Web App Technical Documentation
+# Teebay Technical Documentation
 
 ## Table of Contents
 
-1. Overview
-2. System Architecture
-3. Frontend
-   - 3.1 User Interface Design & Routing
-   - 3.2 Next.js Components
-   - 3.3 MUI (Material-UI) Integration
-4. Backend
-   - 4.1 Express.js
-   - 4.2 PostgreSQL Database
-   - 4.3 Prisma ORM
-   - 4.4 GraphQL API
-5. Deployment
-6. Testing
-7. Known Issues
-8. Future Work
+- [Teebay Technical Documentation](#teebay-technical-documentation)
+  - [Table of Contents](#table-of-contents)
+  - [1. Overview](#1-overview)
+  - [2. System Architecture](#2-system-architecture)
+  - [3. Frontend](#3-frontend)
+    - [3.1 User Interface Design \& Routing](#31-user-interface-design--routing)
+    - [3.2 Next.js Components](#32-nextjs-components)
+    - [3.3 MUI (Material-UI) Integration](#33-mui-material-ui-integration)
+  - [4. Backend](#4-backend)
+    - [4.1 Express.js](#41-expressjs)
+    - [4.2 PostgreSQL Database](#42-postgresql-database)
+    - [4.3 Prisma ORM](#43-prisma-orm)
+    - [4.4 GraphQL API](#44-graphql-api)
+  - [5. Deployment](#5-deployment)
+  - [6. Testing](#6-testing)
+  - [7. Known Issues](#7-known-issues)
+  - [8. Future Work](#8-future-work)
 
 ## 1. Overview
 
