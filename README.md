@@ -2,6 +2,8 @@
 
 Teebay is a full-stack web-app. The repository is divided into two folders: `ClientApp` and `Server`. The `ClientApp` folder contains a Next.js project, while the `Server` folder contains an Express.js, Prisma, and GraphQL project. The documentation for Teebay is available in `Documentation.md`
 
+You can watch a demo [on Youtube right over here!](https://youtu.be/tRUa88jqWgk)
+
 ## Table of Contents
 
 
