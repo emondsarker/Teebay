@@ -179,7 +179,7 @@ End-to-end tests should be implemented using Cypress.
 - User authentication is string-matching. This is unsafe. Use bcrypt and JWT with secret keys to improve security
 - Server-side validation is missing. Currently validation is implemented on front-end only. Which is a security and business risk.
 - Rent duration has multiple issues. Rent duration can overlap. If monthly payment selected, user needs to rent for at least a month but it is not enforced.
-- InMemoryCache not utilized. Needs a persistent cache implementation.
+- InMemoryCache not utilized. Needs a persistent cache implementation. Instead, data is stored using localStorage in a persistent manner.
 
 ## 8. Future Work
 
