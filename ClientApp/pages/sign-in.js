@@ -1,14 +1,11 @@
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-// import Link from '@mui/material/Link';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -16,7 +13,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { gql, useQuery, useApolloClient } from '@apollo/client';
 import { useRouter } from 'next/router';
-// import cache from '../components/cache.js'
+
 
 const LOGIN_USER = gql`
   query LoginUser($email: String!, $password: String!) {
@@ -58,42 +55,59 @@ export default function SignIn() {
       password: data.get('password'),
     }
 
-    try {
-      const { data } = await refetch({ email: formData.email, password: formData.password });
-      console.log('User logged in successfully:', data.loginUser);
-      // Save the user data or token in local storage or state management for further authentication
-      client.writeQuery({
-        query: gql`
+    let completeField = true
+    if (formData.email == "" || formData.password == "") {
+      setMessage("Fields cannot be empty!")
+      setOpen(true)
+      completeField = false
+    }
+
+    if (completeField) {
+      try {
+        const { data } = await refetch({ email: formData.email, password: formData.password });
+        console.log('User logged in successfully:', data.loginUser);
+        // Save the user data or token in local storage or state management for further authentication
+        client.writeQuery({
+          query: gql`
         query IsUserLoggedIn {
           isLoggedIn
           userId
         }
         `,
-        data: {
-          isLoggedIn: true,
-          userId: data.loginUser.id,
-        },
-      });
+          data: {
+            isLoggedIn: true,
+            userId: data.loginUser.id,
+          },
+        });
 
-      // for now save in localStorage
-      window.localStorage.setItem("userId", data.loginUser.id)
-      window.localStorage.setItem("email", data.loginUser.email)
-      window.localStorage.setItem("name", data.loginUser.firstName + " " + data.loginUser.lastName)
+        // for now save in localStorage
+        window.localStorage.setItem("userId", data.loginUser.id)
+        window.localStorage.setItem("email", data.loginUser.email)
+        window.localStorage.setItem("name", data.loginUser.firstName + " " + data.loginUser.lastName)
 
-      console.log(
-        window.localStorage.getItem("userId"),
-        window.localStorage.getItem("email"),
-        window.localStorage.getItem("name")
-      )
+        console.log(
+          window.localStorage.getItem("userId"),
+          window.localStorage.getItem("email"),
+          window.localStorage.getItem("name")
+        )
 
-      const data2 = client.readQuery({ query: IS_LOGGED_IN })
-      console.log(data2)
-      router.push('/my-products')
-    } catch (error) {
-      console.error(error);
-      alert('Error logging in');
+        const data2 = client.readQuery({ query: IS_LOGGED_IN })
+        console.log(data2)
+        router.push('/my-products')
+      } catch (error) {
+        setMessage("Error Logging in")
+        setOpen(true)
+      }
     }
+  };
 
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("Default")
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
   };
 
   return (
@@ -133,15 +147,12 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, background: "purple", '&:hover': { background: "purple" } }}
             >
               Sign In
             </Button>
@@ -155,6 +166,11 @@ export default function SignIn() {
           </Box>
         </Box>
       </Container>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <MuiAlert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          {message}
+        </MuiAlert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

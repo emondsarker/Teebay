@@ -215,6 +215,7 @@ const root = {
         categories: true,
         owner: true,
       },
+      orderBy: { updatedAt: 'desc' }
     });
     return products;
   },
@@ -237,6 +238,7 @@ const root = {
         categories: true,
         owner: true,
       },
+      orderBy: { updatedAt: 'desc' }
     });
     return products;
   },

@@ -16,7 +16,6 @@ const GET_CATEGORIES = gql`
 export default function ProductCard(data) {
 
     const [categoryList, setCategoryList] = useState([])
-    const [productData, setProductData] = useState([])
     const [categoriesName, setCategoriesName] = useState([]);
 
 
@@ -66,12 +65,13 @@ export default function ProductCard(data) {
     })
     useEffect(() => {
         if (categoryList != null && data.data.categories != null) {
-            // console.log(productData)
+
             let tempCategoryArray = []
+
             for (let i = 0; i < categoryList.length; i++) {
                 // console.log(categoryList[i].id)
                 for (let j = 0; j < data.data.categories.length; j++) {
-                    // console.log(productData.categories[j].id)
+
                     if (categoryList[i].id == data.data.categories[j].id) {
                         console.log(categoryList[i].name)
                         tempCategoryArray.push(categoryList[i].name)
@@ -80,7 +80,7 @@ export default function ProductCard(data) {
             }
             setCategoriesName(tempCategoryArray)
         }
-    }, [categoryList, productData])
+    }, [categoryList])
 
     return (
         <Card sx={{ width: '100%', marginBottom: 3, padding: 2 }}>

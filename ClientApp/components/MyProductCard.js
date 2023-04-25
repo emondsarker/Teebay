@@ -1,7 +1,7 @@
-import { Grid, Box, Card, Typography, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material"
+import { Grid, Box, Card, Typography, Chip, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material"
 import DeleteIcon from '@mui/icons-material/Delete';
 import Link from "next/link";
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 const DELETE_PRODUCT = gql`
@@ -27,6 +27,14 @@ const DELETE_PRODUCT = gql`
     }
   }
 `
+const GET_CATEGORIES = gql`
+    query categories {
+        categories {
+            id
+            name
+        }
+    }
+`
 
 export default function MyProductCard(data) {
 
@@ -49,6 +57,21 @@ export default function MyProductCard(data) {
             alert('Error Deleting Product')
         }
     }
+    const { categories } = useQuery(GET_CATEGORIES, {
+        onCompleted: (data) => {
+            console.log(data.categories)
+            let array = []
+            let name = []
+            for (let i = 0; i < data.categories.length; i++) {
+                array[i] = data.categories[i]
+                name[i] = data.categories[i].name
+            }
+            setCategoryList(array)
+            // setCategoryNameList(name)
+
+            console.log(array)
+        }
+    })
 
     const [openDelete, setOpenDelete] = useState(false)
     const handleDelete = () => {
@@ -57,6 +80,9 @@ export default function MyProductCard(data) {
     const handleClose = () => {
         setOpenDelete(false)
     };
+
+    const [categoryList, setCategoryList] = useState([])
+    const [categoriesName, setCategoriesName] = useState([]);
 
     const cardData = {
         id: data.data.id,
@@ -74,7 +100,7 @@ export default function MyProductCard(data) {
         display: { xs: 'none', md: 'flex' },
         fontWeight: 700,
         letterSpacing: '.1rem',
-        color: 'inherit',
+        color: 'black',
         textDecoration: 'none',
     }
     const greyedOut = {
@@ -88,7 +114,24 @@ export default function MyProductCard(data) {
         fontSize: '15px'
     }
 
+    useEffect(() => {
+        if (categoryList != null && data.data.categories != null) {
 
+            let tempCategoryArray = []
+
+            for (let i = 0; i < categoryList.length; i++) {
+                // console.log(categoryList[i].id)
+                for (let j = 0; j < data.data.categories.length; j++) {
+
+                    if (categoryList[i].id == data.data.categories[j].id) {
+                        console.log(categoryList[i].name)
+                        tempCategoryArray.push(categoryList[i].name)
+                    }
+                }
+            }
+            setCategoriesName(tempCategoryArray)
+        }
+    }, [categoryList])
 
     return (
         <>
@@ -99,20 +142,17 @@ export default function MyProductCard(data) {
                             <Typography variant="h4" sx={titleStyle}>
                                 {cardData.title}
                             </Typography>
-                            <Typography sx={greyedOut}>
-                                {(cardData.categories == null) ? (
-                                    <></>
-                                ) : (
-                                    <>
-                                        {
-                                            cardData.categories.map((data) => (
-                                                <>{data.id}</>
-                                            ))
-                                        }
-                                    </>
-                                )}
 
-                            </Typography>
+                            {(categoriesName == null) ? (<></>) : (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+
+                                    {categoriesName.map((value) => (
+                                        <Chip key={value} label={value} />
+                                    ))}
+                                </Box>
+
+                            )}
+
                             <Typography sx={greyedOut}>
                                 Price: ${cardData.price} | Rent: ${cardData.rent} {cardData.interval}
                             </Typography>
@@ -122,7 +162,7 @@ export default function MyProductCard(data) {
                         </Link>
                     </Grid>
                     <Grid item sm={1}>
-                        <Button onClick={() => { handleDelete() }}>
+                        <Button onClick={() => { handleDelete() }} sx={{ color: "black", '&:hover': { color: "red" } }}>
                             <DeleteIcon />
                         </Button>
                     </Grid>
