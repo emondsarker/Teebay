@@ -59,6 +59,7 @@ export default function SignIn() {
     if (formData.email == "" || formData.password == "") {
       setMessage("Fields cannot be empty!")
       setOpen(true)
+      setIssue(true)
       completeField = false
     }
 
@@ -97,11 +98,13 @@ export default function SignIn() {
       } catch (error) {
         setMessage("Error Logging in")
         setOpen(true)
+        setIssue(true)
       }
     }
   };
 
   const [open, setOpen] = useState(false);
+  const [issue, setIssue] = useState(false)
   const [message, setMessage] = useState("Default")
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -136,6 +139,7 @@ export default function SignIn() {
               name="email"
               autoComplete="email"
               autoFocus
+              error={issue}
             />
             <TextField
               margin="normal"
@@ -146,6 +150,7 @@ export default function SignIn() {
               type="password"
               id="password"
               autoComplete="current-password"
+              error={issue}
             />
 
             <Button

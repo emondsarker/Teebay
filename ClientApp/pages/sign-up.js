@@ -79,11 +79,13 @@ export default function SignUp() {
     if (firstName == "" || lastName == "" || address == "" || email == "" || phone == "" || password == "" || confirmPassword == "") {
       setMessage("Fields cannot be empty!")
       setOpen(true)
+      setIssue(true)
       fieldCheck = false
     }
     if (password != confirmPassword) {
       setMessage("Passwords Do Not Match")
       setOpen(true)
+      setPasswordIssue(true)
       passwordCheck = false
     }
 
@@ -100,15 +102,24 @@ export default function SignUp() {
     if (passwordCheck && fieldCheck) {
       try {
         await signUpUser({ variables: { ...formData, activation: true } });
-        alert('User created successfully');
+        setErrorSeverity("success")
+        setMessage("Successfully created user")
+        setOpen(true)
+        setIssue(false)
+        setPasswordIssue(false)
       } catch (error) {
         console.error(error);
-        alert('Error creating user');
+        setErrorSeverity("error")
+        setMessage("Server error: Cannot create user")
+        setOpen(true)
       }
     }
   };
 
   const [open, setOpen] = useState(false);
+  const [issue, setIssue] = useState(false)
+  const [errorSeverity, setErrorSeverity] = useState("error")
+  const [passwordIssue, setPasswordIssue] = useState(false)
   const [message, setMessage] = useState("Default")
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -145,6 +156,7 @@ export default function SignUp() {
                   id="firstName"
                   label="First Name"
                   autoFocus
+                  error={issue}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -155,6 +167,7 @@ export default function SignUp() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                  error={issue}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -165,6 +178,7 @@ export default function SignUp() {
                   label="Address"
                   name="address"
                   autoComplete="address"
+                  error={issue}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -176,6 +190,7 @@ export default function SignUp() {
                   id="email"
                   label="email"
                   autoFocus
+                  error={issue}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -186,6 +201,7 @@ export default function SignUp() {
                   label="Phone No."
                   name="phone"
                   autoComplete="phone"
+                  error={issue}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -193,6 +209,7 @@ export default function SignUp() {
 
                 <TextField
                   required
+                  error={passwordIssue}
                   fullWidth
                   name="password"
                   label="Password"
@@ -216,6 +233,7 @@ export default function SignUp() {
               <Grid item xs={12}>
                 <TextField
                   required
+                  error={passwordIssue}
                   fullWidth
                   name="confirmPassword"
                   label="Confirm Password"
@@ -258,7 +276,7 @@ export default function SignUp() {
 
       </Container>
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <MuiAlert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+        <MuiAlert onClose={handleClose} severity={errorSeverity} sx={{ width: '100%' }}>
           {message}
         </MuiAlert>
       </Snackbar>
