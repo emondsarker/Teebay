@@ -2,16 +2,14 @@ import ResponsiveAppBar from "../components/navbar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from '../styles/teebay.module.css'
-import { TextField } from "@mui/material";
+import { TextField, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, Button } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Chip from '@mui/material/Chip';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 const CREATE_PRODUCT = gql`
@@ -250,17 +248,28 @@ export default function AddProduct() {
         }
         console.log(formData)
 
-        // pass it to server
-        try {
-            await addProduct({ variables: { ...formData, activation: true } })
-            alert('Added product successfully')
-            console.log(data)
-        } catch (error) {
-            console.error(error)
-            alert('Error creating user')
+        if (formData.title == "" || formData.description == "" || formData.categories == null ||
+            formData.price == 0 || formData.rent == 0 || formData.rentInterval == "") {
+            setOpenError(true)
+        } else {
+            // pass it to server
+            try {
+                await addProduct({ variables: { ...formData, activation: true } })
+                setOpenSuccess(true)
+                console.log(data)
+            } catch (error) {
+                console.error(error)
+                setOpenError(true)
+            }
         }
+
     }
 
+    const [openError, setOpenError] = useState(false)
+    const [openSuccess, setOpenSuccess] = useState(false)
+    const handleClose = () => {
+        setOpenError(false)
+    }
     // If you press enter, it goes to next page
     const handleKeyDown = (event) => {
         if (event.key == "Enter") {
@@ -395,6 +404,7 @@ export default function AddProduct() {
                                     label="Purchase price"
                                     name="price"
                                     autoFocus
+                                    type="number"
                                     value={price}
                                     onChange={handlePriceChange}
                                 />
@@ -407,6 +417,7 @@ export default function AddProduct() {
                                     label="Rent price"
                                     name="rent"
                                     autoFocus
+                                    type="number"
                                     value={rent}
                                     onChange={handleRentChange}
                                 />
@@ -481,6 +492,48 @@ export default function AddProduct() {
                     )}
                 </div>
             </div>
+
+            <Dialog
+                open={openError}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    Error: Could not add product
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Check if all necessary data has been given.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} sx={{ backgroundColor: 'purple', '&:hover': { backgroundColor: 'purple' }, color: 'white' }}>
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={openSuccess}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    Successfully added your product
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        We will redirect you to your product page
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => { router.push("/my-products") }} sx={{ backgroundColor: 'limegreen', '&:hover': { backgroundColor: 'limegreen' }, color: 'white' }}>
+                        Okay
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }
