@@ -16,6 +16,8 @@ type Query {
   product(productId: String!): [Product]
   myProducts(userId: String!): [Product]
   categories: [Category]
+  productsPurchasedByUser(userId: String!): [Purchase]
+  productsSoldByUser(userId: String!): [Product]
 }
 
 type Mutation {
@@ -210,10 +212,16 @@ const root = {
   },
   products: async () => {
     const products = await prisma.product.findMany({
-      where: { isDeleted: false },
+      where: {
+        isDeleted: false,
+        purchases: {
+          none: {}
+        }
+      },
       include: {
         categories: true,
         owner: true,
+        purchases: true
       },
       orderBy: { updatedAt: 'desc' }
     });
@@ -280,6 +288,46 @@ const root = {
     });
     console.log(rental)
     return rental;
+  },
+  productsPurchasedByUser: async (args) => {
+    console.log("purchased", args.userId)
+    const userPurchase = await prisma.purchase.findMany({
+      where: {
+        userId: args.userId,
+      },
+      include: {
+        product: {
+          include: {
+            categories: true,
+            owner: true
+          }
+        }
+      }
+    })
+    console.log(userPurchase)
+    return userPurchase
+  },
+  productsSoldByUser: async (args) => {
+    console.log("sold", args.userId)
+    const userPurchase = await prisma.product.findMany({
+      where: {
+        ownerId: args.userId,
+        purchases: {
+          some: {}
+        }
+      },
+      include: {
+        categories: true,
+        owner: true,
+        purchases: {
+          include: {
+            user: true,
+          }
+        }
+      }
+    })
+    console.log(userPurchase)
+    return userPurchase
   },
 
 };

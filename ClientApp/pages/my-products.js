@@ -53,7 +53,7 @@ export default function MyProducts() {
 `;
 
   const { loading, error, data, refetch } = useQuery(MY_PRODUCTS, {
-    variables: { userId: "a119942a-a419-4c34-80e9-0194a6636a1c" },
+    variables: { userId: "" },
     skip: true,
     onCompleted: (data) => {
       console.log(data)

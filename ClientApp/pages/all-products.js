@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import Link from 'next/link'
 
+
 export default function MyProducts() {
   const [productData, setProductData] = useState([{}])
   const [categoryList, setCategoryList] = useState([])
