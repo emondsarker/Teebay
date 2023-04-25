@@ -18,6 +18,8 @@ type Query {
   categories: [Category]
   productsPurchasedByUser(userId: String!): [Purchase]
   productsSoldByUser(userId: String!): [Product]
+  productsLentByUser(userId: String!): [Product]
+  productsRentedByUser(userId: String!): [Rental]
 }
 
 type Mutation {
@@ -273,7 +275,7 @@ const root = {
     return product;
   },
   rentProduct: async (args) => {
-    // console.log(args)
+    console.log("RENT", args)
     const rental = await prisma.rental.create({
       data: {
         user: { connect: { id: args.userId } },
@@ -328,6 +330,47 @@ const root = {
     })
     console.log(userPurchase)
     return userPurchase
+  },
+  productsLentByUser: async (args) => {
+    console.log("LENT", args.userId)
+    const lent = await prisma.product.findMany({
+      where: {
+        ownerId: args.userId,
+        rentals: {
+          some: {}
+        }
+      },
+      include: {
+        categories: true,
+        owner: true,
+        rentals: {
+          include: {
+            user: true,
+          }
+        }
+      }
+    })
+    console.log(lent)
+    return lent
+  },
+  productsRentedByUser: async (args) => {
+    console.log("RENTED", args.userId)
+    const rented = await prisma.rental.findMany({
+      where: {
+        userId: args.userId,
+      },
+      include: {
+        product: {
+          include: {
+            categories: true,
+            owner: true,
+            rentals: true
+          }
+        }
+      }
+    })
+    console.log(rented)
+    return rented
   },
 
 };

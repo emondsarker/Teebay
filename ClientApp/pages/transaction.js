@@ -28,6 +28,30 @@ const SOLD = gql`
     }
   }
 `;
+const BORROWED = gql`
+  query productsRentedByUser($userId: String!) {
+    productsRentedByUser(userId: $userId) {
+        product{
+            id 
+            title
+            price
+            rent
+            rentInterval
+        }
+    }
+  }
+`;
+const LENT = gql`
+  query productsLentByUser($userId: String!) {
+    productsLentByUser(userId: $userId) {
+        id 
+        title
+        price
+        rent
+        rentInterval
+    }
+  }
+`;
 
 export default function Transcation() {
 
@@ -63,7 +87,42 @@ export default function Transcation() {
             console.log(error)
         }
     })
-    console.log(soldData)
+
+    const [borrowedData, setBorrowedData] = useState([])
+    const BORROWED_DATA = useQuery(BORROWED, {
+        variables: { userId: "" },
+        skip: true,
+        onCompleted: (data) => {
+            console.log(data)
+            let array = []
+            for (let i = 0; i < data.productsRentedByUser.length; i++) {
+                array[i] = data.productsRentedByUser[i]
+            }
+            setBorrowedData(array)
+        },
+        errorPolicy: (error) => {
+            console.log(error)
+        }
+    })
+
+    const [lentData, setLentData] = useState([])
+    const LENT_DATA = useQuery(LENT, {
+        variables: { userId: "" },
+        skip: true,
+        onCompleted: (data) => {
+            console.log(data)
+            let array = []
+            for (let i = 0; i < data.productsLentByUser.length; i++) {
+                array[i] = data.productsLentByUser[i]
+            }
+            setLentData(array)
+        },
+        errorPolicy: (error) => {
+            console.log(error)
+        }
+    })
+    console.log(lentData)
+
 
     useEffect(() => {
         // redirect()
@@ -73,7 +132,8 @@ export default function Transcation() {
         }
         PURCHASED_DATA.refetch({ userId: userId })
         SOLD_DATA.refetch({ userId: userId })
-        console.log(userId)
+        BORROWED_DATA.refetch({ userId: userId })
+        LENT_DATA.refetch({ userId: userId })
     }, [])
 
     const router = useRouter()
@@ -128,12 +188,12 @@ export default function Transcation() {
                         <>
                             {purchasedData.map((data) => (
                                 <div className={styles.body}>
-                                    <Card>
+                                    <Card sx={{ padding: '20px' }}>
                                         <Typography key={data.product.id}>
                                             ID: {data.product.id}
                                         </Typography>
-                                        <Typography>
-                                            Title: {data.product.title}
+                                        <Typography variant="h5">
+                                            {data.product.title}
                                         </Typography>
                                         <Typography>
                                             Price: {data.product.price}
@@ -154,12 +214,12 @@ export default function Transcation() {
                         <>
                             {soldData.map((data) => (
                                 <div className={styles.body}>
-                                    <Card>
+                                    <Card sx={{ padding: '20px' }}>
                                         <Typography key={data.id}>
                                             ID: {data.id}
                                         </Typography>
-                                        <Typography>
-                                            Title: {data.title}
+                                        <Typography variant="h5">
+                                            {data.title}
                                         </Typography>
                                         <Typography>
                                             Price: {data.price}
@@ -177,7 +237,24 @@ export default function Transcation() {
             {
                 ((router.query.category == "borrowed")) ?
                     (
-                        <h1>Borrowed</h1>
+                        <>
+                            {borrowedData.map((data) => (
+                                <div className={styles.body}>
+                                    <Card sx={{ padding: '20px' }}>
+                                        <Typography key={data.product.id}>
+                                            ID: {data.product.id}
+                                        </Typography>
+                                        <Typography variant="h5">
+                                            {data.product.title}
+                                        </Typography>
+                                        <Typography>
+                                            Rent: ${data.product.rent} {data.product.rentInterval}
+                                        </Typography>
+                                    </Card>
+
+                                </div>
+                            ))}
+                        </>
                     ) : (
                         <></>
                     )
@@ -186,7 +263,24 @@ export default function Transcation() {
             {
                 ((router.query.category == "lent")) ?
                     (
-                        <h1>Lent</h1>
+                        <>
+                            {lentData.map((data) => (
+                                <div className={styles.body}>
+                                    <Card sx={{ padding: '20px' }}>
+                                        <Typography key={data.id}>
+                                            ID: {data.id}
+                                        </Typography>
+                                        <Typography variant="h5">
+                                            {data.title}
+                                        </Typography>
+                                        <Typography>
+                                            Price: ${data.price} {data.rentInterval}
+                                        </Typography>
+                                    </Card>
+
+                                </div>
+                            ))}
+                        </>
                     ) : (
                         <></>
                     )

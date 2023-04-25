@@ -184,13 +184,13 @@ export default function Product() {
         }
     }
 
-    const [rentProduct, { data3 }] = useMutation(BUY_PRODUCT)
+    const [rentProduct, { data3 }] = useMutation(RENT_PRODUCT)
     const handleRentForReal = async () => {
         let formData = {
             productId: id,
             userId: localStorage.getItem("userId"),
-            startDate: String(rentStartDate),
-            endDate: String(rentEndDate)
+            startDate: rentStartDate,
+            endDate: rentEndDate
         }
         console.log(formData)
 
