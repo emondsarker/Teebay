@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { gql, useQuery, useMutation } from '@apollo/client'
 import styles from '../../styles/teebay.module.css'
 import { Typography, Box, Chip, Button } from "@mui/material";
@@ -12,48 +12,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs from "dayjs";
-import { DateField } from "@mui/x-date-pickers";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
-
-
-export default function Product() {
-    const [productData, setProductData] = useState([])
-    // Categories
-    const [categoryNameList, setCategoryNameList] = useState([""])
-    const [categoryList, setCategoryList] = useState([])
-    const [categoriesName, setCategoriesName] = useState([]);
-
-    // Rent Config
-    const [openRent, setOpenRent] = useState(false);
-    const [rentStartDate, setRentStartDate] = useState();
-    const [rentEndDate, setRentEndDate] = useState();
-    const handleRent = () => {
-        setOpenRent(true);
-    };
-    const handleClose = () => {
-        setOpenRent(false);
-        setOpenBuy(false)
-    };
-    const startDate = (event) => {
-        console.log(event.$d)
-        setRentStartDate(event.$d)
-    }
-    const endDate = (event) => {
-        console.log(event.$d)
-        setRentEndDate(event.$d)
-    }
-
-    // Buy Config
-    const [openBuy, setOpenBuy] = useState(false)
-    const handleBuy = () => {
-        setOpenBuy(true);
-    };
-
-    const router = useRouter()
-    const { id } = router.query
-
-    const PRODUCT = gql`
+const PRODUCT = gql`
         query product($productId: String!) {
             product(productId: $productId) {
                 id
@@ -71,7 +33,7 @@ export default function Product() {
             }
         }
     `;
-    const GET_CATEGORIES = gql`
+const GET_CATEGORIES = gql`
     query categories {
         categories {
             id
@@ -79,7 +41,7 @@ export default function Product() {
         }
     }
 `
-    const BUY_PRODUCT = gql`
+const BUY_PRODUCT = gql`
         mutation buyProduct(
             $productId: String!
             $userId: String!
@@ -103,7 +65,7 @@ export default function Product() {
             }
         }
         `
-    const RENT_PRODUCT = gql`
+const RENT_PRODUCT = gql`
         mutation rentProduct(
             $productId: String!
             $userId: String!
@@ -131,6 +93,45 @@ export default function Product() {
             }
         }
         `
+
+export default function Product() {
+    const [productData, setProductData] = useState([])
+    // Categories
+    const [categoryNameList, setCategoryNameList] = useState([""])
+    const [categoryList, setCategoryList] = useState([])
+    const [categoriesName, setCategoriesName] = useState([]);
+
+    // Rent Config
+    const [openRent, setOpenRent] = useState(false);
+    const [rentStartDate, setRentStartDate] = useState();
+    const [rentEndDate, setRentEndDate] = useState();
+    const handleRent = () => {
+        setOpenRent(true);
+    };
+    const handleClose = () => {
+        setOpenRent(false);
+        setOpenBuy(false)
+        setOpen(false)
+    };
+    const startDate = (event) => {
+        console.log(event.$d)
+        setRentStartDate(event.$d)
+    }
+    const endDate = (event) => {
+        console.log(event.$d)
+        setRentEndDate(event.$d)
+    }
+
+    // Buy Config
+    const [openBuy, setOpenBuy] = useState(false)
+    const handleBuy = () => {
+        setOpenBuy(true);
+    };
+
+    const router = useRouter()
+    const { id } = router.query
+
+
     const { loading, error, data, refetch } = useQuery(PRODUCT, {
         variables: { productId: (id) },
         // skip: true,
@@ -176,11 +177,15 @@ export default function Product() {
         try {
             let message = await buyProduct({ variables: { ...formData, activation: true } })
             // location.reload()
-            alert('Bought product successfully')
-            console.log(message)
+            setOpen(true)
+            setErrorSeverity("success")
+            setMessage("Bought product successfully")
+            setOpenRent(false)
         } catch (error) {
             console.error(error)
-            alert('Error Buying Product')
+            setOpen(true)
+            setErrorSeverity("error")
+            setMessage("Could not buy product")
         }
     }
 
@@ -198,11 +203,16 @@ export default function Product() {
         try {
             let message = await rentProduct({ variables: { ...formData, activation: true } })
             // location.reload()
-            alert('Rented product successfully')
+            setOpen(true)
+            setErrorSeverity("success")
+            setMessage("Rented product successfully")
+            setOpenRent(false)
             console.log(message)
         } catch (error) {
             console.error(error)
-            alert('Error Renting Product')
+            setOpen(true)
+            setErrorSeverity("error")
+            setMessage("Could not rent product")
         }
     }
 
@@ -233,6 +243,11 @@ export default function Product() {
     }, [categoryList, productData])
     console.log(categoriesName)
 
+    const [message, setMessage] = useState("")
+    const [open, setOpen] = useState(false)
+    const [errorSeverity, setErrorSeverity] = useState("error")
+
+
     return (
         <>
             <ResponsiveAppBar />
@@ -246,7 +261,7 @@ export default function Product() {
                     ))}
                 </Box>
                 <br />
-                <Typography variant="h5">Price: ${productData.price} </Typography>
+                <Typography variant="h5">Price: ${productData.price} | Rent: ${productData.rent} on a {productData.rentInterval} basis</Typography>
                 <br />
                 <Typography>Product description:</Typography>
                 <br />
@@ -316,6 +331,12 @@ export default function Product() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <MuiAlert onClose={handleClose} severity={errorSeverity} sx={{ width: '100%' }}>
+                    {message}
+                </MuiAlert>
+            </Snackbar>
         </>
     )
 }

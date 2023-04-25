@@ -274,7 +274,7 @@ export default function Transcation() {
                                             {data.title}
                                         </Typography>
                                         <Typography>
-                                            Price: ${data.price} {data.rentInterval}
+                                            Price: ${data.rent} {data.rentInterval}
                                         </Typography>
                                     </Card>
 
