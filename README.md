@@ -11,6 +11,7 @@ Teebay is a full-stack web-app. The repository is divided into two folders: `Cli
   - [Cloning the Repository](#cloning-the-repository)
   - [Installing Dependencies](#installing-dependencies)
   - [Connecting Database](#connecting-database)
+  - [Running the App and Server](#running-the-app-and-server)
 
 ## Prerequisites
 
@@ -72,3 +73,14 @@ npx prisma migrate dev
 ```
 
 
+## Running the App and Server
+
+To run the Next.js app, navigate to `ClientApp` and run the command
+```
+npm run dev
+```
+
+To start the server, navigate to `Server` and run the command
+```
+node index.js
+```
