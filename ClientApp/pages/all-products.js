@@ -1,14 +1,14 @@
 import React from 'react'
 import ResponsiveAppBar from '../components/navbar'
-import { InferGetServerSidePropsType } from 'next'
+import styles from '../styles/teebay.module.css'
 import ProductCard from '../components/ProductCard'
-import { Box } from '@mui/system'
 import { useEffect, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import Link from 'next/link'
 
 export default function MyProducts() {
   const [productData, setProductData] = useState([{}])
+  const [categoryList, setCategoryList] = useState([])
 
   const ALL_PRODUCTS = gql`
   query products {
@@ -40,6 +40,7 @@ export default function MyProducts() {
     }
   })
   console.log(productData)
+
   useEffect(() => {
 
   }, [])
@@ -48,16 +49,9 @@ export default function MyProducts() {
 
     <div>
       <ResponsiveAppBar />
-      <Box
-        sx={{
-          marginTop: '5%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+      <div className={styles.body}>
 
-        }}>
-
-        {(productData == null) ? (
+        {(productData == null && categoryList == null) ? (
           <></>
         ) : (
           <>
@@ -65,8 +59,9 @@ export default function MyProducts() {
               // 
               <>
                 <Link href={"/product/" + data.id}>
-                  <ProductCard sx={{ minWidth: '500px' }} data={data} />
-                  {console.log(data)}
+
+                  <ProductCard sx={{ minWidth: '500px' }} data={data} categories={categoryList} />
+
                 </Link>
               </>
 
@@ -75,7 +70,7 @@ export default function MyProducts() {
 
         )}
 
-      </Box>
+      </div>
 
     </div>
 

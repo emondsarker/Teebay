@@ -1,19 +1,23 @@
-.body{
+.body {
     margin-left: 10%;
     margin-right: 10%;
     margin-top: 50px;
-    
 }
-.transactionTabs{
+
+.body a {
+    text-decoration: none;
+}
+
+.transactionTabs {
     display: flex;
     justify-content: center;
     align-items: center;
-    
-    
-    width: 100%;
-  }
 
-.transactionTabs button{
+
+    width: 100%;
+}
+
+.transactionTabs button {
     padding: 10px;
     width: 25%;
     background-color: white;
@@ -22,20 +26,22 @@
     border-bottom: solid;
     border-color: white;
     border-bottom-width: 5px;
-    
-    
+
+
 }
-.transactionTabs button:hover{
+
+.transactionTabs button:hover {
     cursor: pointer;
     filter: brightness(95%);
 }
 
-.buttonContainer{
+.buttonContainer {
     width: 100%;
     display: flex;
-   
+
 }
-.leftButton{
+
+.leftButton {
     background-color: purple;
     color: white;
     font-weight: bold;
@@ -43,9 +49,10 @@
     border: none;
     border-radius: 5px;
     margin: 10px 0px;
-    
+
 }
-.rightButton{
+
+.rightButton {
     background-color: purple;
     color: white;
     font-weight: bold;
@@ -56,16 +63,18 @@
     margin-left: auto;
 }
 
-.rightButton:hover, .leftButton:hover{
+.rightButton:hover,
+.leftButton:hover {
     cursor: pointer;
     filter: brightness(110%);
 }
 
-.steps{
+.steps {
     display: flex;
     justify-content: center;
 }
-.steps p{
+
+.steps p {
     background-color: lightgrey;
     margin: 10px 30px;
     color: white;
@@ -73,13 +82,13 @@
     border-radius: 100%;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
-    
+
 }
 
 
 /* Add product styles */
 
-.AddProductContainer{
+.AddProductContainer {
     font-family: Arial, Helvetica, sans-serif;
     border: solid;
     border-width: 1px;
@@ -87,6 +96,7 @@
     border-color: lightgrey;
     padding: 20px;
 }
-.AddProductContainer h1{
+
+.AddProductContainer h1 {
     text-align: center;
 }
